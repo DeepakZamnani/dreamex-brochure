@@ -114,14 +114,8 @@ const App: React.FC = () => {
   };
 
   const handleGenerate = async () => {
-    if (!data.title || !data.branding.developerName) {
-      alert("Essential branding data missing (Project Name, Developer).");
-      return;
-    }
-
     setCurrentState(AppState.GENERATING);
     try {
-      // Calling the corrected function name imported above
       const designBlueprint = await generateBrochureArchitecturalDesign(data);
       if (designBlueprint) {
         setData(prev => ({ ...prev, design: designBlueprint }));
@@ -130,7 +124,7 @@ const App: React.FC = () => {
         throw new Error("Blueprint Generation Failed");
       }
     } catch (err) {
-      alert("Architectural synthesis failed. Retrying...");
+      alert("Generation failed. Please check console and try again.");
       setCurrentState(AppState.INPUT);
     }
   };

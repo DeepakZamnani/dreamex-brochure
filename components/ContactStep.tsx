@@ -1,6 +1,6 @@
 // import React, { useRef } from 'react';
 // import { PropertyData } from '.././types';
-// import { FormInput, FormSection } from './FormComponents';
+// import { FormInput, FormSection } from '../FormComponents';
 // import { User, Phone, Mail, Briefcase, UploadCloud, X } from 'lucide-react';
 
 // interface ContactStepProps {

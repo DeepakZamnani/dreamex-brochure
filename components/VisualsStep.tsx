@@ -1,6 +1,6 @@
 // import React, { useRef } from 'react';
 // import { PropertyData } from '.././types';
-// import { FormSection } from './FormComponents';
+// import { FormSection } from '../FormComponents';
 // import { UploadCloud, X, ImageIcon } from 'lucide-react';
 
 // interface VisualsStepProps {

@@ -9,10 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
     "@google/genai": "^1.38.0",
-    "lucide-react": "^0.263.1"
+    "html2pdf": "^0.0.11",
+    "html2pdf.js": "^0.14.0",
+    "lucide-react": "^0.263.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

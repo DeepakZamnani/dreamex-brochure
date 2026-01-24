@@ -1,6 +1,6 @@
 // import React from 'react';
 // import { PropertyData, BrochureStyle } from "../types";
-// import { FormInput, FormSection } from './FormComponents';
+// import { FormInput, FormSection } from '../FormComponents';
 // import { FileText, Palette } from 'lucide-react';
 
 // interface DescriptionStepProps {

@@ -1,6 +1,6 @@
 // import React, { useState } from 'react';
 // import { PropertyData } from '.././types';
-// import { FormSection } from "./FormComponents";
+// import { FormSection } from "../FormComponents";
 // import { Plus, X, Sparkles } from 'lucide-react';
 
 // interface FeaturesStepProps {

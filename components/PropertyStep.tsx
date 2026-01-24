@@ -1,6 +1,6 @@
 // import React from 'react';
 // import { PropertyData } from '.././types';
-// import { FormInput, FormSection } from './FormComponents';
+// import { FormInput, FormSection } from '../FormComponents';
 // import { Building2, MapPin, DollarSign, Bed, Bath, Ruler, Calendar } from 'lucide-react';
 
 // interface PropertyStepProps {

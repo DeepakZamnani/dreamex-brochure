@@ -30,19 +30,49 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
   const canProceed = () => {
     switch (currentStep) {
       case 1:
+        // Step 1: Property Details - only check fields on this step
         return data.title && data.location && data.priceDetails.startingPrice && 
-               data.configuration.length > 0 && data.branding.developerName;
+               data.configuration.length > 0;
       case 2:
+        // Step 2: Sales Intelligence
         return data.salesIntelligence.targetBuyer.length > 0 &&
                data.salesIntelligence.keySellingPoints.every(p => p.trim() !== '');
       case 3:
-        return true; // Features are optional
+        // Step 3: Features are optional
+        return true;
       case 4:
-        return data.images.length > 0; // At least one image required
+        // Step 4: At least one image required
+        return data.images.length > 0;
       case 5:
-        return data.agent.name && data.branding.siteAddress;
+        // Step 5: Contact & Branding - check developer name and agent
+        return data.branding.developerName && data.agent.name && data.branding.siteAddress;
       default:
         return true;
+    }
+  };
+
+  const getValidationMessage = () => {
+    switch (currentStep) {
+      case 1:
+        if (!data.title) return "Property Name is required";
+        if (!data.location) return "Location is required";
+        if (!data.priceDetails.startingPrice) return "Starting Price is required";
+        if (data.configuration.length === 0) return "Select at least one configuration";
+        return "";
+      case 2:
+        if (data.salesIntelligence.targetBuyer.length === 0) return "Select at least one target buyer";
+        if (!data.salesIntelligence.keySellingPoints.every(p => p.trim() !== '')) return "Fill in all 3 key selling points";
+        return "";
+      case 4:
+        if (data.images.length === 0) return "Upload at least one image";
+        return "";
+      case 5:
+        if (!data.branding.developerName) return "Developer Name is required";
+        if (!data.agent.name) return "Agent Name is required";
+        if (!data.branding.siteAddress) return "Site Address is required";
+        return "";
+      default:
+        return "";
     }
   };
 
@@ -127,7 +157,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
             <div className="flex items-center gap-4">
               {!canProceed() && (
                 <p className="text-sm text-red-600">
-                  Please fill in all required fields
+                  {getValidationMessage()}
                 </p>
               )}
               
