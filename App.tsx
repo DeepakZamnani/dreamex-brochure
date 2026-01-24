@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { PropertyData, AppState, DesignConfig } from './types';
 import InputFormNew from './components/InputFormNew';
 import BrochurePreview from './components/BrochurePreview';
+import DynamicBrochurePreview from './components/DynamicBrochurePreview';
 import Header from './components/Header';
 import FeaturesSection from './components/FeaturesSection';
 // Corrected import name to match the export in services/geminiService.ts
 import { generateBrochureArchitecturalDesign } from './services/geminiService';
+import { generateDynamicBrochureLayout } from './services/geminiLayoutService';
 
 const App: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
@@ -113,19 +114,97 @@ const App: React.FC = () => {
     });
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+
   const handleGenerate = async () => {
     setCurrentState(AppState.GENERATING);
     try {
-      const designBlueprint = await generateBrochureArchitecturalDesign(data);
-      if (designBlueprint) {
-        setData(prev => ({ ...prev, design: designBlueprint }));
+      // Generate dynamic layout with AI
+      const layoutResult = await generateDynamicBrochureLayout(data);
+      
+      if (layoutResult) {
+        setData(prev => ({ ...prev, dynamicLayout: layoutResult }));
         setCurrentState(AppState.PREVIEW);
       } else {
-        throw new Error("Blueprint Generation Failed");
+        throw new Error("Layout Generation Failed");
       }
     } catch (err) {
       alert("Generation failed. Please check console and try again.");
       setCurrentState(AppState.INPUT);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    setIsRegenerating(true);
+    try {
+      const layoutResult = await generateDynamicBrochureLayout(data);
+      
+      if (layoutResult) {
+        setData(prev => ({ ...prev, dynamicLayout: layoutResult }));
+      } else {
+        throw new Error("Layout Generation Failed");
+      }
+    } catch (err) {
+      alert("Regeneration failed. Please try again.");
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      // Dynamically import html2pdf
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      // Create a container with only the brochure pages (exclude banners)
+      const pages = document.querySelectorAll('.page');
+      if (pages.length === 0) {
+        throw new Error('No brochure pages found');
+      }
+
+      // Create a temporary container with just the pages
+      const tempContainer = document.createElement('div');
+      tempContainer.style.backgroundColor = '#e5e7eb';
+      tempContainer.style.padding = '40px 0';
+      
+      pages.forEach(page => {
+        const clone = page.cloneNode(true) as HTMLElement;
+        tempContainer.appendChild(clone);
+      });
+
+      const opt = {
+        margin: 0,
+        filename: `${data.title.replace(/[^a-z0-9]/gi, '_')}_Brochure.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          windowWidth: 794,
+          windowHeight: 1123
+        },
+        jsPDF: { 
+          unit: 'px' as const, 
+          format: [794, 1123] as [number, number], 
+          orientation: 'portrait' as const,
+          compress: true
+        },
+        pagebreak: { 
+          mode: ['avoid-all', 'css', 'legacy'] as ('avoid-all' | 'css' | 'legacy')[],
+          after: '.page'
+        }
+      };
+
+      await html2pdf().set(opt).from(tempContainer).save();
+      
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      alert('PDF export failed. Please try using Print > Save as PDF instead.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -173,7 +252,7 @@ const App: React.FC = () => {
                 <p className="text-xs text-gray-500">Property Brochure Generator</p>
               </div>
             </div>
-            <div className="flex gap-6 items-center">
+            <div className="flex gap-4 items-center">
               <button 
                 onClick={() => {
                   setShowForm(true);
@@ -184,14 +263,34 @@ const App: React.FC = () => {
                 ← Back to Edit
               </button>
               <button 
-                onClick={() => window.print()} 
-                className="bg-[#10B981] text-white px-8 py-3 text-sm font-semibold hover:bg-[#059669] transition-all shadow-lg rounded-lg"
+                onClick={handleRegenerate}
+                disabled={isRegenerating || isExporting}
+                className="bg-gray-100 text-gray-700 px-6 py-3 text-sm font-semibold hover:bg-gray-200 transition-all rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Print / Download PDF
+                {isRegenerating ? '🔄 Regenerating...' : '🔄 Regenerate Layout'}
+              </button>
+              <button 
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="bg-blue-600 text-white px-6 py-3 text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isExporting ? '📄 Exporting...' : '📥 Download PDF'}
+              </button>
+              <button 
+                onClick={() => window.print()} 
+                className="bg-[#10B981] text-white px-6 py-3 text-sm font-semibold hover:bg-[#059669] transition-all shadow-lg rounded-lg"
+              >
+                🖨️ Print
               </button>
             </div>
           </div>
-          <BrochurePreview data={data} />
+          {data.dynamicLayout ? (
+            <DynamicBrochurePreview data={data} layoutCode={data.dynamicLayout.code} />
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-gray-500">No layout generated yet.</p>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -744,8 +744,20 @@ export interface PropertyData {
   // AI Generated Design (populated after generation)
   design?: DesignConfig;
 
+  // Dynamic Layout Code (populated after generation)
+  dynamicLayout?: DynamicLayoutResult;
+
   // Selected Theme (for backward compatibility with Gemini mapping)
   selectedTheme?: 'Luxury' | 'Minimal' | 'Editorial';
+}
+
+// ============================================================================
+// DYNAMIC LAYOUT RESULT
+// ============================================================================
+
+export interface DynamicLayoutResult {
+  code: string;           // Complete TSX code for the brochure layout
+  timestamp: number;      // Generation timestamp
 }
 
 // ============================================================================
