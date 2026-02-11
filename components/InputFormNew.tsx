@@ -11,13 +11,16 @@ import { Building2, FileText, Star, Image, Phone, ChevronLeft, ChevronRight, Spa
 interface InputFormProps {
   data: PropertyData;
   onChange: (data: PropertyData) => void;
-  onSubmit: () => void;
+  onSubmit: (selectedTemplate: string) => void;  // ✅ Pass template to parent
   onLoadDummy: () => void;
 }
 
 const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLoadDummy }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [style, setStyle] = useState<BrochureStyle>(BrochureStyle.LUXURY);
+  
+  // ✅ FIX: Add template selection state
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('modern_luxury');
 
   const steps = [
     { id: 1, label: 'Property', icon: <Building2 className="w-6 h-6" /> },
@@ -34,9 +37,10 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
         return data.title && data.location && data.priceDetails.startingPrice && 
                data.configuration.length > 0;
       case 2:
-        // Step 2: Sales Intelligence
+        // Step 2: Sales Intelligence + Template Selection
         return data.salesIntelligence.targetBuyer.length > 0 &&
-               data.salesIntelligence.keySellingPoints.every(p => p.trim() !== '');
+               data.salesIntelligence.keySellingPoints.every(p => p.trim() !== '') &&
+               selectedTemplate !== null;  // ✅ FIX: Check template is selected
       case 3:
         // Step 3: Features are optional
         return true;
@@ -62,6 +66,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
       case 2:
         if (data.salesIntelligence.targetBuyer.length === 0) return "Select at least one target buyer";
         if (!data.salesIntelligence.keySellingPoints.every(p => p.trim() !== '')) return "Fill in all 3 key selling points";
+        if (!selectedTemplate) return "Select a template";  // ✅ FIX: Template validation message
         return "";
       case 4:
         if (data.images.length === 0) return "Upload at least one image";
@@ -102,7 +107,10 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
       };
       
       onChange({ ...data, selectedTheme: themeMap[style] });
-      onSubmit();
+      
+      // ✅ FIX: Pass selectedTemplate to parent
+      console.log('🚀 Submitting with template:', selectedTemplate);
+      onSubmit(selectedTemplate);
     }
   };
 
@@ -111,7 +119,17 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
       case 1:
         return <PropertyStep data={data} setData={onChange} />;
       case 2:
-        return <DescriptionStep data={data} setData={onChange} style={style} setStyle={setStyle} />;
+        // ✅ FIX: Pass selectedTemplate and setSelectedTemplate to DescriptionStep
+        return (
+          <DescriptionStep 
+            data={data} 
+            setData={onChange} 
+            style={style} 
+            setStyle={setStyle}
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
+          />
+        );
       case 3:
         return <FeaturesStep data={data} setData={onChange} />;
       case 4:
@@ -138,6 +156,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
             <div className="flex items-center gap-4">
               {currentStep > 1 && (
                 <button
+                  type="button"
                   onClick={handlePrevious}
                   className="flex items-center gap-2 px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
                 >
@@ -147,6 +166,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
               )}
               
               <button
+                type="button"
                 onClick={onLoadDummy}
                 className="px-4 py-3 text-sm text-gray-500 hover:text-[#10B981] transition-all"
               >
@@ -154,7 +174,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
               </button>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center ga-4">
               {!canProceed() && (
                 <p className="text-sm text-red-600">
                   {getValidationMessage()}
@@ -163,6 +183,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
               
               {currentStep < steps.length ? (
                 <button
+                  type="button"
                   onClick={handleNext}
                   disabled={!canProceed()}
                   className="flex items-center gap-2 px-8 py-3 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -172,6 +193,7 @@ const InputFormNew: React.FC<InputFormProps> = ({ data, onChange, onSubmit, onLo
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={handleSubmit}
                   disabled={!canProceed()}
                   className="flex items-center gap-2 px-8 py-3 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"

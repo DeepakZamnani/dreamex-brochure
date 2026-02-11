@@ -1,98 +1,27 @@
-// import React from 'react';
-// import { PropertyData, BrochureStyle } from "../types";
-// import { FormInput, FormSection } from '../FormComponents';
-// import { FileText, Palette } from 'lucide-react';
-
-// interface DescriptionStepProps {
-//   data: PropertyData;
-//   setData: React.Dispatch<React.SetStateAction<PropertyData>>;
-//   style: BrochureStyle;
-//   setStyle: React.Dispatch<React.SetStateAction<BrochureStyle>>;
-// }
-
-// const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style, setStyle }) => {
-//   const styles = [
-//     { value: BrochureStyle.ARCHITECTURAL, label: 'Architectural', desc: 'Bold, structural design' },
-//     { value: BrochureStyle.LUXURY, label: 'Luxury ', desc: 'Elegant and contemporary' },
-//     { value: BrochureStyle.MINIMALIST, label: 'Minimalist', desc: 'Clean and simple' },
-//     { value: BrochureStyle.EDITORIAL, label: 'Editorial', desc: 'Magazine-style layout' },
-//     { value: BrochureStyle.AVANT_GARDE, label: 'Avant-Garde', desc: 'Raw and powerful' }
-//   ];
-
-//   return (
-//     <div className="space-y-8">
-//       <FormSection 
-//         title="Property Description" 
-//         description="Write a compelling description that highlights what makes this property unique"
-//       >
-//         <FormInput
-//           label="Description"
-//           value={data.description}
-//           onChange={(v) => setData({ ...data, description: v })}
-//           placeholder="Describe the property's unique features, location advantages, and lifestyle benefits..."
-//           icon={FileText}
-//           multiline
-//           rows={6}
-//         />
-//       </FormSection>
-
-//       <FormSection 
-//         title="Design Style" 
-//         description="Choose the visual style for your brochure"
-//       >
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//           {styles.map((s) => (
-//             <button
-//               key={s.value}
-//               onClick={() => setStyle(s.value)}
-//               className={`p-5 rounded-lg border-2 text-left transition-all ${
-//                 style === s.value
-//                   ? 'bg-emerald-50 border-[#10B981] shadow-lg shadow-emerald-500/10'
-//                   : 'bg-white border-gray-300 hover:border-emerald-300'
-//               }`}
-//             >
-//               <div className="flex items-start gap-3">
-//                 <div className={`p-2 rounded-lg ${
-//                   style === s.value ? 'bg-[#10B981]' : 'bg-gray-100'
-//                 }`}>
-//                   <Palette className={`w-5 h-5 ${style === s.value ? 'text-white' : 'text-gray-600'}`} />
-//                 </div>
-//                 <div className="flex-1">
-//                   <h4 className={`font-semibold mb-1 ${style === s.value ? 'text-gray-900' : 'text-gray-700'}`}>
-//                     {s.label}
-//                   </h4>
-//                   <p className="text-sm text-gray-600">{s.desc}</p>
-//                 </div>
-//               </div>
-//             </button>
-//           ))}
-//         </div>
-//       </FormSection>
-//     </div>
-//   );
-// };
-
-// export default DescriptionStep;
 import React from 'react';
-import { PropertyData, BrochureStyle, TargetBuyer, UsageIntent } from '../types';
+import { PropertyData, TargetBuyer, UsageIntent, BrochureStyle } from '../types';
 import { FormInput, FormSection } from './FormComponents';
-import { FileText, Palette, Target, Smartphone, MapPin, Plus, X } from 'lucide-react';
+import { FileText, Target, Smartphone, MapPin, Plus, X, Sparkles, Palette, Check } from 'lucide-react';
 
 interface DescriptionStepProps {
   data: PropertyData;
   setData: React.Dispatch<React.SetStateAction<PropertyData>>;
   style: BrochureStyle;
   setStyle: React.Dispatch<React.SetStateAction<BrochureStyle>>;
+  selectedTemplate: string;
+  setSelectedTemplate: (template: string) => void;
 }
 
-const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style, setStyle }) => {
-  const styles = [
-    { value: BrochureStyle.LUXURY, label: 'Luxury', desc: 'Best for high-ticket / NRI buyers' },
-    { value: BrochureStyle.MINIMALIST, label: 'Minimalist', desc: 'Best for WhatsApp sharing' },
-    { value: BrochureStyle.ARCHITECTURAL, label: 'Architectural', desc: 'Technical & precise' },
-    { value: BrochureStyle.EDITORIAL, label: 'Editorial', desc: 'Best for email & PDF sharing' },
-    { value: BrochureStyle.AVANT_GARDE, label: 'Avant-Garde', desc: 'Modern & bold design' }
-  ];
+const DescriptionStep: React.FC<DescriptionStepProps> = ({
+  data,
+  setData,
+  style,
+  setStyle,
+  selectedTemplate,
+  setSelectedTemplate
+}) => {
+  
+  console.log('✅ DescriptionStep - Selected Template:', selectedTemplate);
 
   const targetBuyers: { value: TargetBuyer; label: string }[] = [
     { value: 'families', label: 'Families' },
@@ -109,6 +38,46 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
     { value: 'print', label: 'Print', icon: FileText },
     { value: 'presentation', label: 'Presentation', icon: Target },
     { value: 'website', label: 'Website', icon: MapPin }
+  ];
+
+  // 6 TEMPLATES - SIMPLE AND CLEAR
+  const templates = [
+    { 
+      id: 'modern_luxury', 
+      name: 'Modern Luxury', 
+      description: 'Bold typography, dramatic gradients, sophisticated black & gold design',
+      bestFor: 'High-end properties, luxury buyers, NRI clients'
+    },
+    { 
+      id: 'minimalist_clean', 
+      name: 'Minimalist Clean', 
+      description: 'WhatsApp-optimized, lots of white space, simple and fast to load',
+      bestFor: 'WhatsApp sharing, quick viewing, working professionals'
+    },
+    { 
+      id: 'bold_editorial', 
+      name: 'Bold Editorial', 
+      description: 'Magazine-style storytelling, asymmetric layouts, large typography',
+      bestFor: 'Email campaigns, presentations, storytelling approach'
+    },
+    { 
+      id: 'classic_elegant', 
+      name: 'Classic Elegant', 
+      description: 'Traditional serif fonts, centered layouts, timeless design',
+      bestFor: 'Print brochures, families, senior citizens'
+    },
+    { 
+      id: 'contemporary_chic', 
+      name: 'Contemporary Chic', 
+      description: 'Vibrant colors, geometric shapes, trendy modern patterns',
+      bestFor: 'Urban properties, young buyers, apartments'
+    },
+    { 
+      id: 'ai_generated', 
+      name: 'Let AI Create Yours', 
+      description: 'Completely unique AI-generated design tailored to your property',
+      bestFor: 'Unique properties, custom branding, creative freedom'
+    }
   ];
 
   const toggleTargetBuyer = (buyer: TargetBuyer) => {
@@ -160,16 +129,25 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
         ...prev.salesIntelligence,
         locationAdvantages: {
           ...prev.salesIntelligence.locationAdvantages,
-          nearbyLandmarks: prev.salesIntelligence.locationAdvantages.nearbyLandmarks.filter((_, i) => i !== index)
+          nearbyLandmarks: prev.salesIntelligence.locationAdvantages.nearbyLandmarks.filter(
+            (_, i) => i !== index
+          )
         }
       }
     }));
   };
 
+  const handleTemplateClick = (templateId: string) => {
+    console.log('🎯 Template clicked:', templateId);
+    setSelectedTemplate(templateId);
+    console.log('✅ Template updated');
+  };
+
   return (
     <div className="space-y-8">
-      <FormSection 
-        title="Sales Intelligence" 
+      {/* Sales Intelligence Section */}
+      <FormSection
+        title="Sales Intelligence"
         description="Define your target audience and key selling points"
       >
         <div className="space-y-2">
@@ -207,11 +185,13 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
               key={index}
               label={`Reason ${index + 1}`}
               value={data.salesIntelligence.keySellingPoints[index]}
-              onChange={(v) => updateKeySellingPoint(index, v)}
+              onChange={v => updateKeySellingPoint(index, v)}
               placeholder={`e.g., ${
-                index === 0 ? 'Prime location near IT parks' : 
-                index === 1 ? 'Best-in-class amenities' : 
-                'Excellent connectivity'
+                index === 0
+                  ? 'Prime location near IT parks'
+                  : index === 1
+                  ? 'Best-in-class amenities'
+                  : 'Excellent connectivity'
               }`}
               required
             />
@@ -219,11 +199,12 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
         </div>
       </FormSection>
 
-      <FormSection 
-        title="Location Advantages" 
+      {/* Location Advantages */}
+      <FormSection
+        title="Location Advantages"
         description="Highlight nearby landmarks and connectivity"
       >
-        <LandmarkInput 
+        <LandmarkInput
           landmarks={data.salesIntelligence.locationAdvantages.nearbyLandmarks}
           onAdd={addLandmark}
           onRemove={removeLandmark}
@@ -233,16 +214,18 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
           <FormInput
             label="Metro Distance (Optional)"
             value={data.salesIntelligence.locationAdvantages.metroDistance || ''}
-            onChange={(v) => setData(prev => ({
-              ...prev,
-              salesIntelligence: {
-                ...prev.salesIntelligence,
-                locationAdvantages: {
-                  ...prev.salesIntelligence.locationAdvantages,
-                  metroDistance: v
+            onChange={v =>
+              setData(prev => ({
+                ...prev,
+                salesIntelligence: {
+                  ...prev.salesIntelligence,
+                  locationAdvantages: {
+                    ...prev.salesIntelligence.locationAdvantages,
+                    metroDistance: v
+                  }
                 }
-              }
-            }))}
+              }))
+            }
             placeholder="e.g., 500m from Metro"
             icon={MapPin}
           />
@@ -250,16 +233,18 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
           <FormInput
             label="Connectivity (Optional)"
             value={data.salesIntelligence.locationAdvantages.connectivity || ''}
-            onChange={(v) => setData(prev => ({
-              ...prev,
-              salesIntelligence: {
-                ...prev.salesIntelligence,
-                locationAdvantages: {
-                  ...prev.salesIntelligence.locationAdvantages,
-                  connectivity: v
+            onChange={v =>
+              setData(prev => ({
+                ...prev,
+                salesIntelligence: {
+                  ...prev.salesIntelligence,
+                  locationAdvantages: {
+                    ...prev.salesIntelligence.locationAdvantages,
+                    connectivity: v
+                  }
                 }
-              }
-            }))}
+              }))
+            }
             placeholder="e.g., Close to Highway"
             icon={MapPin}
           />
@@ -268,27 +253,28 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
         <FormInput
           label="Unique Features (Optional)"
           value={data.salesIntelligence.uniqueFeatures || ''}
-          onChange={(v) => setData(prev => ({
-            ...prev,
-            salesIntelligence: {
-              ...prev.salesIntelligence,
-              uniqueFeatures: v
-            }
-          }))}
+          onChange={v =>
+            setData(prev => ({
+              ...prev,
+              salesIntelligence: {
+                ...prev.salesIntelligence,
+                uniqueFeatures: v
+              }
+            }))
+          }
           placeholder="Any special aspects or unique selling propositions..."
           multiline
           rows={3}
         />
       </FormSection>
 
-      <FormSection 
-        title="Usage Intent" 
-        description="How will you use this brochure?"
-      >
+      {/* Usage Intent */}
+      <FormSection title="Usage Intent" description="How will you use this brochure?">
         <div className="flex flex-wrap gap-3">
           {usageIntents.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
+              type="button"
               onClick={() => setData(prev => ({ ...prev, usageIntent: value }))}
               className={`flex items-center gap-2 px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
                 data.usageIntent === value
@@ -303,42 +289,108 @@ const DescriptionStep: React.FC<DescriptionStepProps> = ({ data, setData, style,
         </div>
       </FormSection>
 
-      <FormSection 
-        title="Design Style" 
-        description="Choose the visual style for your brochure"
+      {/* ============================================ */}
+      {/* TEMPLATE SELECTION - ONLY THIS, NO STYLES! */}
+      {/* ============================================ */}
+      <FormSection
+        title="Choose Your Brochure Template"
+        description="Select the design that best fits your property and target audience"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {styles.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => setStyle(s.value)}
-              className={`p-5 rounded-lg border-2 text-left transition-all ${
-                style === s.value
-                  ? 'bg-emerald-50 border-[#10B981] shadow-lg shadow-emerald-500/10'
-                  : 'bg-white border-gray-300 hover:border-emerald-300'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${
-                  style === s.value ? 'bg-[#10B981]' : 'bg-gray-100'
-                }`}>
-                  <Palette className={`w-5 h-5 ${style === s.value ? 'text-white' : 'text-gray-600'}`} />
+        {/* Debug Panel */}
+        <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+          <p className="text-sm text-blue-900 font-mono">
+            <strong>Current Selection:</strong> {selectedTemplate}
+          </p>
+        </div>
+
+        {/* Template Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {templates.map(template => {
+            const isSelected = selectedTemplate === template.id;
+            
+            return (
+              <div
+                key={template.id}
+                onClick={() => handleTemplateClick(template.id)}
+                className={`cursor-pointer p-6 rounded-xl border-2 transition-all ${
+                  isSelected
+                    ? 'bg-emerald-50 border-[#10B981] shadow-xl ring-4 ring-emerald-100'
+                    : 'bg-white border-gray-300 hover:border-emerald-300 hover:shadow-lg'
+                }`}
+              >
+                {/* Selected Badge */}
+                {isSelected && (
+                  <div className="flex items-center justify-end mb-3">
+                    <div className="bg-[#10B981] text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                      <Check className="w-4 h-4" />
+                      SELECTED
+                    </div>
+                  </div>
+                )}
+
+                {/* Template Icon/Badge */}
+                <div className="mb-4">
+                  <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                    template.id === 'ai_generated'
+                      ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700'
+                      : isSelected
+                        ? 'bg-emerald-200 text-emerald-900'
+                        : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {template.id === 'ai_generated' ? '🤖 AI POWERED' : '📄 TEMPLATE'}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h4 className={`font-semibold mb-1 ${style === s.value ? 'text-gray-900' : 'text-gray-700'}`}>
-                    {s.label}
-                  </h4>
-                  <p className="text-sm text-gray-600">{s.desc}</p>
+
+                {/* Template Name */}
+                <h3 className={`text-xl font-bold mb-2 ${
+                  isSelected ? 'text-[#10B981]' : 'text-gray-900'
+                }`}>
+                  {template.name}
+                </h3>
+
+                {/* Description */}
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  {template.description}
+                </p>
+
+                {/* Best For */}
+                <div className="pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 mb-1">✓ Best for:</p>
+                  <p className="text-xs font-medium text-gray-700">
+                    {template.bestFor}
+                  </p>
                 </div>
               </div>
-            </button>
-          ))}
+            );
+          })}
         </div>
+
+        {/* Selected Template Confirmation */}
+        {selectedTemplate && (
+          <div className="mt-6 p-5 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#10B981] flex items-center justify-center flex-shrink-0">
+                <Check className="w-6 h-6 text-white" strokeWidth={3} />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-gray-900 text-lg mb-1">
+                  {templates.find(t => t.id === selectedTemplate)?.name}
+                </h4>
+                <p className="text-sm text-gray-600">
+                  {selectedTemplate === 'ai_generated'
+                    ? '🎨 AI will create a completely unique design when you generate the brochure'
+                    : '✓ This professional template will be customized with your property details'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </FormSection>
     </div>
   );
 };
 
+// Landmark Input Component
 const LandmarkInput: React.FC<{
   landmarks: string[];
   onAdd: (landmark: string) => void;
@@ -359,17 +411,18 @@ const LandmarkInput: React.FC<{
         <MapPin className="w-4 h-4 text-[#10B981]" />
         Nearby Landmarks
       </label>
-      
+
       <div className="flex gap-3">
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
           placeholder="Add landmark (e.g., Schools, Malls, etc.)"
           className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-emerald-100 transition-all"
         />
         <button
+          type="button"
           onClick={handleAdd}
           className="px-6 py-3 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-all shadow-lg shadow-emerald-500/25"
         >
@@ -386,6 +439,7 @@ const LandmarkInput: React.FC<{
             >
               <span className="text-sm text-gray-900">{landmark}</span>
               <button
+                type="button"
                 onClick={() => onRemove(i)}
                 className="p-0.5 hover:bg-red-100 rounded transition-colors"
               >

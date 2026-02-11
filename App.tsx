@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import { PropertyData, AppState, DesignConfig } from './types';
+import { PropertyData, AppState } from './types';
 import InputFormNew from './components/InputFormNew';
-import BrochurePreview from './components/BrochurePreview';
 import DynamicBrochurePreview from './components/DynamicBrochurePreview';
 import Header from './components/Header';
 import FeaturesSection from './components/FeaturesSection';
-// Corrected import name to match the export in services/geminiService.ts
-import { generateBrochureArchitecturalDesign } from './services/geminiService';
-import { generateDynamicBrochureLayout } from './services/geminiLayoutService';
 
 const App: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [currentState, setCurrentState] = useState<AppState>(AppState.INPUT);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('modern_luxury');
   const [data, setData] = useState<PropertyData>({
     price: '',
     title: '',
@@ -64,7 +61,7 @@ const App: React.FC = () => {
         priceRange: { min: '₹12 Cr', max: '₹18 Cr' }
       },
       specs: { beds: '4', baths: '4', sqft: '2400', yearBuilt: '2024' },
-      images: [], // Images are hard to dummy without external URLs, keeping empty for user upload
+      images: [],
       amenities: {
         projectAmenities: ['Infinity Edge Pool', 'Sky Bar & Lounge', 'Private Cinema', 'Temperature Controlled Gym'],
         apartmentFeatures: ['Italian Marble Flooring', 'Smart Home Automation', 'Walk-in Wardrobes', 'Double Height Balcony'],
@@ -115,56 +112,23 @@ const App: React.FC = () => {
   };
 
   const [isExporting, setIsExporting] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
-  const handleGenerate = async () => {
-    setCurrentState(AppState.GENERATING);
-    try {
-      // Generate dynamic layout with AI
-      const layoutResult = await generateDynamicBrochureLayout(data);
-      
-      if (layoutResult) {
-        setData(prev => ({ ...prev, dynamicLayout: layoutResult }));
-        setCurrentState(AppState.PREVIEW);
-      } else {
-        throw new Error("Layout Generation Failed");
-      }
-    } catch (err) {
-      alert("Generation failed. Please check console and try again.");
-      setCurrentState(AppState.INPUT);
-    }
-  };
-
-  const handleRegenerate = async () => {
-    setIsRegenerating(true);
-    try {
-      const layoutResult = await generateDynamicBrochureLayout(data);
-      
-      if (layoutResult) {
-        setData(prev => ({ ...prev, dynamicLayout: layoutResult }));
-      } else {
-        throw new Error("Layout Generation Failed");
-      }
-    } catch (err) {
-      alert("Regeneration failed. Please try again.");
-    } finally {
-      setIsRegenerating(false);
-    }
+  const handleGenerate = async (template: string) => {
+    console.log('📝 Form submitted with template:', template);
+    setSelectedTemplate(template);
+    setCurrentState(AppState.PREVIEW);
   };
 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
-      // Dynamically import html2pdf
       const html2pdf = (await import('html2pdf.js')).default;
       
-      // Create a container with only the brochure pages (exclude banners)
       const pages = document.querySelectorAll('.page');
       if (pages.length === 0) {
         throw new Error('No brochure pages found');
       }
 
-      // Create a temporary container with just the pages
       const tempContainer = document.createElement('div');
       tempContainer.style.backgroundColor = '#e5e7eb';
       tempContainer.style.padding = '40px 0';
@@ -229,19 +193,6 @@ const App: React.FC = () => {
         </>
       )}
 
-      {currentState === AppState.GENERATING && (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <div className="relative mb-16">
-            <div className="w-32 h-32 border border-emerald-200 rounded-full animate-ping absolute inset-0"></div>
-            <div className="w-32 h-32 border-t-4 border-[#10B981] rounded-full animate-spin"></div>
-          </div>
-          <h3 className="text-4xl font-bold text-gray-900 mb-4">Creating Your Brochure</h3>
-          <p className="text-gray-600 text-sm max-w-md text-center leading-relaxed">
-            AI is designing a unique brochure for {data.title}. This will take just a moment...
-          </p>
-        </div>
-      )}
-
       {currentState === AppState.PREVIEW && (
         <>
           <div className="no-print bg-white border-b sticky top-0 z-50 flex justify-between items-center px-12 py-6 shadow-sm">
@@ -263,18 +214,11 @@ const App: React.FC = () => {
                 ← Back to Edit
               </button>
               <button 
-                onClick={handleRegenerate}
-                disabled={isRegenerating || isExporting}
-                className="bg-gray-100 text-gray-700 px-6 py-3 text-sm font-semibold hover:bg-gray-200 transition-all rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isRegenerating ? '🔄 Regenerating...' : '🔄 Regenerate Layout'}
-              </button>
-              <button 
                 onClick={handleExportPDF}
                 disabled={isExporting}
                 className="bg-blue-600 text-white px-6 py-3 text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isExporting ? '📄 Exporting...' : '📥 Download PDF'}
+                {isExporting ? '🔄 Exporting...' : '📥 Download PDF'}
               </button>
               <button 
                 onClick={() => window.print()} 
@@ -284,13 +228,10 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
-          {data.dynamicLayout ? (
-            <DynamicBrochurePreview data={data} layoutCode={data.dynamicLayout.code} />
-          ) : (
-            <div className="text-center py-20">
-              <p className="text-gray-500">No layout generated yet.</p>
-            </div>
-          )}
+          <DynamicBrochurePreview 
+            data={data} 
+            selectedTemplate={selectedTemplate} 
+          />
         </>
       )}
     </div>
